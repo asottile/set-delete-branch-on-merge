@@ -55,7 +55,7 @@ def main() -> int:
 
     url = 'https://api.github.com/user/repos?per_page=100'
     for repo in _get_all(url, headers=headers):
-        if not repo['full_name'].startswith(ORGS):
+        if not repo['full_name'].startswith(ORGS) or repo['archived']:
             continue
 
         repo_name = repo['full_name']
