@@ -1,0 +1,76 @@
+#!/usr/bin/env python3
+import json
+import os
+import time
+import urllib.request
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Tuple
+
+ORGS = (
+    'anthonywritescode/',
+    'asottile/',
+    'pre-commit/',
+    'pre-commit-ci/',
+    'pre-commit-ci-demo/',
+)
+
+
+def _parse_link_header(lnk: Optional[str]) -> Dict[str, str]:
+    if lnk is None:
+        return {}
+
+    ret = {}
+    parts = lnk.split(',')
+    for part in parts:
+        link, _, rel = part.partition(';')
+        link, rel = link.strip(), rel.strip()
+        assert link.startswith('<') and link.endswith('>'), link
+        assert rel.startswith('rel="') and rel.endswith('"'), rel
+        link, rel = link[1:-1], rel[len('rel="'):-1]
+        ret[rel] = link
+    return ret
+
+
+def _req(url: str, **kwargs: Any) -> Tuple[Any, Dict[str, str]]:
+    resp = urllib.request.urlopen(urllib.request.Request(url, **kwargs))
+    return json.load(resp), _parse_link_header(resp.headers['link'])
+
+
+def _get_all(url: str, **kwargs: Any) -> List[Dict[str, Any]]:
+    ret: List[Dict[str, Any]] = []
+    while True:
+        resp, links = _req(url, **kwargs)
+        ret.extend(resp)
+        if 'next' in links:
+            url = links['next']
+        else:
+            return ret
+
+
+def main() -> int:
+    headers = {'Authorization': f'token {os.environ["GH_TOKEN"]}'}
+
+    url = 'https://api.github.com/user/repos?per_page=100'
+    for repo in _get_all(url, headers=headers):
+        if not repo['full_name'].startswith(ORGS):
+            continue
+
+        repo_name = repo['full_name']
+        print(f'{repo_name}...', end='', flush=True)
+        _req(
+            f'https://api.github.com/repos/{repo_name}',
+            method='PATCH',
+            data=json.dumps({'delete_branch_on_merge': True}).encode(),
+            headers=headers,
+        )
+        print('DONE!', flush=True)
+        time.sleep(1)
+
+    return 0
+
+
+if __name__ == '__main__':
+    exit(main())

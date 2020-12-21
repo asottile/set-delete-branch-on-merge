@@ -1,0 +1,17 @@
+name: main
+on:
+  push:
+    branches: [master]
+  schedule:
+  - cron: '0 10 * * 0'
+
+jobs:
+  build:
+    name: main
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-python@v2
+    - run: ./set-delete-branch-on-merge
+      env:
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
