@@ -1,5 +1,5 @@
 [![Build Status](https://github.com/asottile/set-delete-branch-on-merge/workflows/main/badge.svg)](https://github.com/asottile/set-delete-branch-on-merge/actions)
-[![pre-commit.ci status](https://results.pre-commit.ci/badge/github/asottile/set-delete-branch-on-merge/master.svg)](https://results.pre-commit.ci/latest/github/asottile/set-delete-branch-on-merge/master)
+[![pre-commit.ci status](https://results.pre-commit.ci/badge/github/asottile/set-delete-branch-on-merge/main.svg)](https://results.pre-commit.ci/latest/github/asottile/set-delete-branch-on-merge/main)
 
 set-delete-branch-on-merge
 ==========================
